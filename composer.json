@@ -1,0 +1,51 @@
+{
+  "name": "xefi/faker-php-laravel",
+  "type": "library",
+  "description": "Faker php integration with laravel",
+  "keywords": [
+    "faker",
+    "data",
+    "seeding",
+    "fixtures",
+    "laravel"
+  ],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Gautier Deleglise"
+    }
+  ],
+  "require": {
+    "orchestra/testbench": "^9.0",
+    "php": "^8.3",
+    "xefi/faker-php": "^0",
+    "illuminate/support": "^11.0",
+    "psr/container": "^2.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^11"
+  },
+  "autoload": {
+    "files": [
+      "src/helpers.php"
+    ],
+    "psr-4": {
+      "Xefi\\Faker\\Laravel\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Xefi\\Faker\\Laravel\\Tests\\": "tests/"
+    }
+  },
+  "config": {
+    "sort-packages": true
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Xefi\\Faker\\Laravel\\FakerLaravelServiceProvider"
+      ]
+    }
+  }
+}
