@@ -1,4 +1,5 @@
 <?php
+namespace Xefi\Faker\Laravel;
 
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Facades\Config;
