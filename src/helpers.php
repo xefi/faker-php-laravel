@@ -14,6 +14,12 @@ if (! function_exists('faker')) {
 
         $locale ??= 'en_US';
 
-        return app()->makeWith(\Xefi\Faker\Faker::class, compact('locale'));
+        $abstract = \Xefi\Faker\Faker::class.':'.$locale;
+
+        if (! app()->bound($abstract)) {
+            app()->singleton($abstract, fn () => new \Xefi\Faker\Faker($locale));
+        }
+
+        return app()->make($abstract);
     }
 }
