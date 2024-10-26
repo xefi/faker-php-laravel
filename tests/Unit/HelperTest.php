@@ -11,4 +11,10 @@ class HelperTest extends TestCase
         
         $this->assertInstanceOf(Faker::class, $faker);
     }
+
+    public function testFakerHelperWithNullLocale() {
+        $faker = faker(null);
+
+        $this->assertEquals(null, $faker->getLocale());
+    }
 }

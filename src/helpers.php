@@ -6,7 +6,7 @@ if (! function_exists('faker')) {
      *
      * @param  string|null  $locale
      */
-    function faker(string $locale = '') : \Xefi\Faker\Faker
+    function faker(null|string $locale = '') : \Xefi\Faker\Faker
     {
         if ($locale === '') {
             $locale = app()->bound('config') ?
