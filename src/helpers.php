@@ -6,13 +6,13 @@ if (! function_exists('faker')) {
      *
      * @param  string|null  $locale
      */
-    function faker(string $locale = null) : \Xefi\Faker\Faker
+    function faker(string $locale = '') : \Xefi\Faker\Faker
     {
-        if (app()->bound('config')) {
-            $locale ??= app('config')->get('app.faker_locale');
+        if ($locale === '') {
+            $locale = app()->bound('config') ?
+                app('config')->get('app.faker_locale')
+                : 'en_US';
         }
-
-        $locale ??= 'en_US';
 
         $abstract = \Xefi\Faker\Faker::class.':'.$locale;
 
