@@ -19,7 +19,7 @@
     "orchestra/testbench": "^9.0",
     "php": "^8.3",
     "xefi/faker-php": "^1",
-    "illuminate/support": "^11.0",
+    "illuminate/support": "^11.0|^12.0",
     "psr/container": "^2.0"
   },
   "require-dev": {
