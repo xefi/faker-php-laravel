@@ -16,7 +16,7 @@
     }
   ],
   "require": {
-    "orchestra/testbench": "^9.0",
+    "orchestra/testbench": "^9.0|^10.0",
     "php": "^8.3",
     "xefi/faker-php": "^1",
     "illuminate/support": "^11.0|^12.0",
