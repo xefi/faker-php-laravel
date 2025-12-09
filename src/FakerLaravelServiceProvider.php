@@ -14,7 +14,8 @@ class FakerLaravelServiceProvider extends \Illuminate\Support\ServiceProvider
      */
     public function boot()
     {
-        Container::packageManifestPath('./bootstrap/cache/faker-packages.php');
+        Container::packageManifestPath(base_path().'/bootstrap/cache/faker-packages.php');
+        Container::basePath(base_path());
     }
 
     /**
