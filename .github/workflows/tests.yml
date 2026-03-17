@@ -15,9 +15,9 @@ jobs:
       fail-fast: false
       matrix:
         php-version: [ '8.3', '8.4', '8.5' ]
-        laravel-version: [ '^10.0', '^11.0', '^12.0', '^13.0' ]
+        laravel-version: [ '^11.0', '^12.0', '^13.0' ]
 
-    name: Tests on PHP ${{ matrix.php-version }}
+    name: PHP ${{ matrix.php-version }} - Laravel ${{ matrix.laravel-version }}
 
     steps:
       - name: Checkout
@@ -29,21 +29,23 @@ jobs:
           php-version: ${{ matrix.php-version }}
           coverage: none
 
-      - name: Validate composer.json and composer.lock
+      - name: Validate composer.json
         run: composer validate
 
+      - name: Require Laravel version
+        run: composer require "laravel/framework:${{ matrix.laravel-version }}" --no-update
+
       - name: Cache Composer packages
-        id: composer-cache
         uses: actions/cache@v4
         with:
           path: vendor
-          key: ${{ runner.os }}-php-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
+          key: ${{ runner.os }}-php-${{ matrix.php-version }}-laravel-${{ matrix.laravel-version }}-${{ hashFiles('composer.json') }}
           restore-keys: |
+            ${{ runner.os }}-php-${{ matrix.php-version }}-laravel-${{ matrix.laravel-version }}-
             ${{ runner.os }}-php-${{ matrix.php-version }}-
 
       - name: Install dependencies
-        if: steps.composer-cache.outputs.cache-hit != 'true'
-        run: composer i --prefer-dist --no-progress
+        run: composer update --prefer-dist --no-progress
 
       - name: Run test suite
         run: vendor/bin/phpunit
