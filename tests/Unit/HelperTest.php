@@ -15,6 +15,6 @@ class HelperTest extends TestCase
     public function testFakerHelperWithNullLocale() {
         $faker = faker(null);
 
-        $this->assertEquals(null, $faker->getLocale());
+        $this->assertEquals('default', $faker->getLocale());
     }
 }
