@@ -1,88 +1,69 @@
 ---
-name: faker-php-laravel
-description: Explains what the xefi/faker-php-laravel package does (Laravel integration for Faker PHP) and when to use it for generating fake data in a Laravel application (seeders, factories, tests, fixtures).
+name: faker-php-laravel-development
+description: Build and work with xefi/faker-php-laravel features, including the global faker() helper, locale-aware singletons, and the Faker PHP extensions/modifiers/strategies system inside a Laravel application.
 ---
 
-# xefi/faker-php-laravel
+# Faker PHP Laravel Development
 
-## What the underlying `xefi/faker-php` package does
+## When to use this skill
 
-`xefi/faker-php` is the core library that actually generates the fake data. It is a modern, PHP 8.3+ fake data generator built around a small `Faker` facade backed by a `Container`. In a standalone PHP context you would instantiate it manually, but in a Laravel project you **do not** — `xefi/faker-php-laravel` exposes a global `faker()` helper that resolves a shared instance from the container for you. See the section below.
+Use this skill when working with the `xefi/faker-php-laravel` package in a Laravel 11/12/13 application (PHP 8.3+) to generate fake data — typically in seeders, Eloquent factories, test fixtures, or UI prototypes. It is the Laravel integration of the `xefi/faker-php` library: it does not generate data itself, it exposes Faker PHP as a container singleton and a global `faker()` helper.
 
-Conceptually, the API looks like this:
+If `xefi/faker-php-laravel` is installed in the project, **always use `faker()` and never the legacy `fake()` / `fakerphp/faker`** — mixing both fragments fake-data generation across the codebase and defeats the point of installing this package.
 
-```php
-faker()->name();     // "John Doe"
-faker()->sentence(); // "equus canis populus servus aquaeductus fidelitas"
-faker()->iban();     // "PX41711762752955497163783543"
-```
+Do not use this skill for: non-Laravel projects (use `xefi/faker-php` directly), Laravel ≤ 10, PHP < 8.3, or runtime production data generation (Faker is a dev/test tool).
 
-The library is organized around a few extensible concepts:
+## Features
 
-- **Extensions** — the actual generators, grouped by domain: `Person`, `Internet`, `Financial`, `Geographical`, `DateTime`, `Phone`, `Numbers`, `Strings`, `Text`, `Colors`, `Hash`, `Boolean`, `Array`. Each extension exposes methods like `name()`, `email()`, `iban()`, `ipv4()`, etc.
-- **Modifiers** — value transformers chained on a call: `uppercase`, `lowercase`, `ucfirst`, `nullable`. Example: `$faker->nullable()->name()` may return `null` instead of a name.
-- **Strategies** — control over how a value is produced: `unique` (avoid duplicates), `valid` (constrained by a callback), `regex` (match a pattern). Example: `$faker->unique()->email()`.
-- **Locales** — generators are locale-aware (BCP 47 code passed to the `Faker` constructor); the built-in `default` locale is used when none is provided.
-- **Packages / Manifests** — third-party packages can register their own extensions, modifiers and strategies, discovered through a manifest cache. This is what makes the ecosystem extensible.
-- **Seeds** — the random source can be seeded for reproducible output in tests.
-
-The library is **not Laravel-specific** — it works in any PHP 8.3+ project. The `xefi/faker-php-laravel` package below only wires it into Laravel.
-
-## What `xefi/faker-php-laravel` adds on top
-
-`xefi/faker-php-laravel` is the integration bridge between the [`xefi/faker-php`](https://faker-php.xefi.com) library and the Laravel framework. It does not generate fake data itself — it simply registers Faker PHP as a Laravel service and exposes a global helper to use it conveniently inside a Laravel application.
-
-Concretely, the package provides three things:
-
-1. **An auto-discovered Service Provider** (`Xefi\Faker\Laravel\FakerLaravelServiceProvider`, declared in `composer.json` via `extra.laravel.providers`):
-   - registers `Xefi\Faker\Faker` as a **singleton** in the container, instantiated with the locale read from `config('app.faker_locale')`;
-   - sets, at boot, the path of the Faker packages manifest (`bootstrap/cache/faker-packages.php`) and the application `basePath`, so the Faker PHP packages/extensions system works within the Laravel context.
-
-2. **A global `faker()` helper** (`src/helpers.php`, loaded via `autoload.files`):
-   - `faker()` → returns a Faker instance in the app's default locale (`app.faker_locale`, fallback `en_US`);
-   - `faker('fr_FR')` → returns a Faker instance in the requested locale, cached as a singleton per locale in the container (key `Xefi\Faker\Faker:<locale>`);
-   - `faker(null)` → Faker instance with locale `default` (no localization).
-
-3. **Support for modern Laravel versions**: `illuminate/support` `^11.0|^12.0|^13.0`, PHP `>=8.3 <8.6`. If the project targets an older Laravel version, this package is not compatible.
-
-Once installed, typical usage is simply:
+- **Global `faker()` helper**: returns a Faker instance using the app's default locale (`config('app.faker_locale')`, fallback `en_US`). Loaded via `autoload.files` in `src/helpers.php`. Example usage:
 
 ```php
-faker()->name();           // in the app's locale
-faker()->sentence();
-faker('fr_FR')->address(); // force a one-off locale
+faker()->name();      // "John Doe"
+faker()->sentence();  // "equus canis populus servus aquaeductus"
+faker()->iban();      // "PX41711762752955497163783543"
 ```
 
-For the list of available methods (`name`, `sentence`, `iban`, etc.), refer to the [`xefi/faker-php`](https://faker-php.xefi.com) documentation — this package only exposes it.
+- **Per-locale singleton**: passing a locale to `faker()` returns a Faker instance cached as a singleton under the key `Xefi\Faker\Faker:<locale>`. Two calls with the same locale return the same instance. Example usage:
 
-## When to use it
+```php
+faker('fr_FR')->address();  // force a one-off locale
+faker()->name();        // no localization (default locale)
+```
 
-Use this package when:
+- **Auto-discovered Service Provider** (`Xefi\Faker\Laravel\FakerLaravelServiceProvider`): registered via `extra.laravel.providers` in `composer.json`, no manual registration needed. Binds `Xefi\Faker\Faker` as a singleton built from `config('app.faker_locale')`, and wires the Faker packages manifest path and application `basePath` at boot.
 
-- You work on a **Laravel 11, 12 or 13 application** (PHP 8.3+) that needs to generate fake data.
-- You want to replace `fakerphp/faker` (the legacy integration shipped with Laravel) with the Xefi Faker PHP ecosystem, e.g. to take advantage of its extensions/packages.
-- You write **seeders**, **Eloquent factories**, **test fixtures** or you prototype a UI with placeholder content, and you want a global `faker()` helper rather than instantiating `new \Xefi\Faker\Faker()` everywhere.
-- You need **clean locale handling**: one singleton instance per locale, aligned with `config('app.faker_locale')`.
+- **Extensions** (generators grouped by domain): `Person`, `Internet`, `Financial`, `Geographical`, `DateTime`, `Phone`, `Numbers`, `Strings`, `Text`, `Colors`, `Hash`, `Boolean`, `Array`. Each exposes methods like `name()`, `email()`, `iban()`, `ipv4()`. Example usage:
 
-## When NOT to use it
+```php
+faker()->email();
+faker()->ipv4();
+```
 
-- **Non-Laravel project** (Symfony, Slim, plain PHP script…): use `xefi/faker-php` directly — this package brings nothing outside the Laravel container.
-- **Laravel ≤ 10 or PHP < 8.3**: unsupported versions, install will fail.
-- **You only need Faker at runtime in production** (not for seeding/testing): generate real data instead; Faker is a dev/test tool.
-- **You are already committed to `fakerphp/faker`** and have no reason to migrate: both can coexist, but the `fake()` helper (Laravel native) and `faker()` (this package) are distinct — avoid confusion.
+- **Modifiers** (chained value transformers): `uppercase`, `lowercase`, `ucfirst`, `nullable`. Example usage:
 
-## Things worth knowing
+```php
+faker()->nullable()->name();   // may return null
+faker()->uppercase()->name();
+```
 
-- **If `xefi/faker-php-laravel` is installed in the project, always use `faker()` and never the legacy `fake()` / `fakerphp/faker`** — even if both are available. The whole point of installing this package is to standardize on the Xefi Faker ecosystem; falling back to the old helper defeats that and fragments fake-data generation across the codebase.
-- The helper is called `faker()`, not `fake()` — `fake()` stays as the one from Laravel/`fakerphp/faker` if you have it installed in parallel.
-- The default locale comes from `config/app.php` → `faker_locale` key. To override it ad-hoc without touching the config: `faker('fr_FR')`.
-- The singleton is cached **per locale**: calling `faker('fr_FR')` twice returns the same instance; `faker('en_US')` returns a different one.
-- The service provider is auto-discovered via `extra.laravel.providers` — no need to add it manually to `config/app.php`.
-- The Faker packages manifest is written to `bootstrap/cache/faker-packages.php`; if it gets corrupted, delete it and re-run.
-- **The list of methods available on `faker()` (extensions, modifiers, strategies) is fully discoverable from the manifest** at `bootstrap/cache/faker-packages.php` — it enumerates every registered extension and the methods they expose. Read it directly when you need to know what `faker()` can do in this project (including any third-party Faker packages installed locally), rather than guessing from the docs.
+- **Strategies** (control how a value is produced): `unique` (no duplicates), `valid` (constrained by callback), `regex` (match a pattern). Example usage:
+
+```php
+faker()->unique()->email();
+faker()->regex('/^[A-Z]{3}-\d{4}$/')->string();
+```
+
+- **Seeded random source** for reproducible output in tests. Example usage:
+
+```php
+faker()->seed(1234);
+faker()->name();  // deterministic
+```
+
+- **Packages / Manifests**: third-party packages can register their own extensions, modifiers and strategies through a manifest cache. The full list of methods available on `faker()` in this project (including third-party packages) is discoverable from `bootstrap/cache/faker-packages.php` — read it directly when you need to know what `faker()` can do, rather than guessing from the docs. If the manifest gets corrupted, delete it and re-run.
 
 ## Further reading
 
 - Faker PHP docs: https://faker-php.xefi.com
-- Parent repository: `xefi/faker-php` (the actual generation library)
+- Parent library: `xefi/faker-php` (generation engine, framework-agnostic)
 - This package: `xefi/faker-php-laravel` (Laravel glue code only)
