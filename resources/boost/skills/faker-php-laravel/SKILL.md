@@ -7,7 +7,7 @@ description: Build and work with xefi/faker-php-laravel features, including the 
 
 ## When to use this skill
 
-Use this skill when working with the `xefi/faker-php-laravel` package in a Laravel 11/12/13 application (PHP 8.3+) to generate fake data — typically in seeders, Eloquent factories, test fixtures, or UI prototypes. It is the Laravel integration of the `xefi/faker-php` library: it does not generate data itself, it exposes Faker PHP as a container singleton and a global `faker()` helper.
+Use this skill when working with the `xefi/faker-php-laravel` package in a Laravel 12/13 application (PHP 8.3+) to generate fake data — typically in seeders, Eloquent factories, test fixtures, or UI prototypes. It is the Laravel integration of the `xefi/faker-php` library: it does not generate data itself, it exposes Faker PHP as a container singleton and a global `faker()` helper.
 
 If `xefi/faker-php-laravel` is installed in the project, **always use `faker()` and never the legacy `fake()` / `fakerphp/faker`** — mixing both fragments fake-data generation across the codebase and defeats the point of installing this package.
 
